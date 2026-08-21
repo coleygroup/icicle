@@ -1,0 +1,28 @@
+# Config for full enumeration barcode baseline evaluation
+# Uses MAGMa fragmentation + uniform intensity=1 for all fragment masses
+defaults:
+  - base
+  - _self_
+
+eval_name: full_enumeration_barcode
+
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  training_data_fraction: ${data.training_data_fraction}
+  dataset_config:
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 1000
+    bin_width: 1.0
+
+model:
+  architecture:
+    _target_: icicle.models.baselines.full_enumeration_bar_code.FullEnumerationBarCode
+    min_mz: 0
+    max_mz: 1000
+    bin_width: 1.0
+    # MAGMa fragmentation parameters
+    max_tree_depth: 3
+    max_broken_bonds: 6
+    num_h_shifts: 6

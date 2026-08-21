@@ -1,0 +1,164 @@
+# Hyperparameter optimization config for RASSP
+# Used with hyperopt.py script
+
+# Data paths (relative to data_dir)
+data:
+  train_file: nist-scaffold-noxenoaas_train.parquet
+  val_file: nist-scaffold-noxenoaas_val.parquet
+  data_dir: /home/magled/icicle-dev/baselines/rassp/
+
+# Optuna settings
+optuna:
+  n_trials: 20
+  study_name: rassp_hyperopt_nist_scaffold_noxenoaas
+  storage: null  # e.g., "sqlite:///hyperopt.db" for persistence
+  sampler: tpe  # tpe, random, or cmaes
+  pruner: median  # median, hyperband, or none
+  direction: maximize  # maximize or minimize
+  metric: sdp  # sdp, dp, or mean_loss
+
+# Training settings
+training:
+  max_epochs: 20
+  validate_every: 3
+  checkpoint_every_n_epochs: 40
+  epoch_size: 8192
+  # epoch_size is set to the paper's default (8192) for RASSP.
+  seed: 1234
+
+# Fixed model parameters (not tuned)
+fixed:
+  net_name: formulaenets.GraphVertSpect
+  tgt_max_n: 48
+  bin_config:
+    first_bin_center: 1.0
+    bin_width: 1.0
+    bin_number: 512
+  loss_params:
+    loss_name: losses.WeightedMSELoss
+    func: l2
+    mass_scale: 0.0
+    intensity_pow: 0.5
+  featurize_config:
+    MAX_N: 48
+    feat_vert_args:
+      feat_atomicno: true
+      total_h_oh: true
+      partial_charge: false
+      mmff_atom_types_onehot: false
+    adj_args:
+      add_identity: false
+      norm_adj: false
+      edge_bin: false
+    mol_args:
+      atom_type_counts: true
+    spect_input_sparse: true
+    element_oh: [1, 6, 7, 8, 9, 15, 16, 17]
+    vert_subset_samples_n: 12288
+    subset_gen_config:
+      name: BandR
+      num_breaks: 3
+    explicit_formulae_config:
+      enumerator_type: multipeak
+      formula_possible_atomicno: [1, 6, 7, 8, 9, 15, 16, 17]
+      featurize_mode: numerical
+      use_highres: true
+      num_peaks_per_formula: 12
+      max_formulae: 4096
+      clip_mass: 511
+  pred_config:
+    foo: bar
+  validate_config:
+    kl_validate:
+      - field: null
+    dotprod_validate:
+      exp_pred: false
+      exp_true: false
+    metadata:
+      - field: null
+  filter_max_mass: 511
+  filter_max_unique_formulae: 4096
+  filter_max_n: 48
+
+# Hyperparameter search spaces
+# Supported types: int, float, categorical, loguniform
+search_space:
+  # Network architecture
+  net_params:
+    int_d:
+      type: categorical
+      choices: [256, 512, 768]
+    layer_n:
+      type: int
+      low: 8
+      high: 24
+      step: 4
+    resnet:
+      type: categorical
+      choices: [true, false]
+    agg_func:
+      type: categorical
+      choices: [goodmax, sum, mean]
+    gml_class:
+      type: categorical
+      choices: [GraphMatLayersNormAfterRes]
+    inner_norm:
+      type: categorical
+      choices: [layer, batch]
+    input_norm:
+      type: categorical
+      choices: [batch, layer]
+    gml_config:
+      layer_class:
+        type: categorical
+        choices: [GraphMatLayerFast3]
+      layer_config:
+        dropout:
+          type: float
+          low: 0.0
+          high: 0.4
+        nonlin:
+          type: categorical
+          choices: [leakyrelu, relu]
+    spect_out_class:
+      type: categorical
+      choices: [MolAttentionGRU]
+    spect_out_config:
+      internal_d:
+        type: categorical
+        choices: [128, 256]
+      embedding_key_size:
+        type: categorical
+        choices: [8, 16]
+      gru_layer_n:
+        type: int
+        low: 2
+        high: 4
+      linear_layer_n:
+        type: int
+        low: 3
+        high: 9
+        step: 3
+
+  # Optimization parameters
+  opt_params:
+    optimizer:
+      type: categorical
+      choices: [adam, adamax]
+    lr:
+      type: loguniform
+      low: 0.00005
+      high: 0.0005
+
+    weight_decay:
+      type: loguniform
+      low: 0.000001
+      high: 0.0001
+
+  # Training parameters
+  batch_size:
+    type: categorical
+    choices: [6, 8, 12]
+  accumulate_steps:
+    type: categorical
+    choices: [1, 2, 4]

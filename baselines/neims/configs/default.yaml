@@ -1,0 +1,39 @@
+# Example configuration for NEIMS training
+# This file documents the default parameters used in the NEIMS baseline
+
+# Data paths (update these to your actual paths)
+metadata_path: "examples/example_data/metadata.tsv"
+spectra_path: "examples/example_data/spectra.h5"
+splits_path: "examples/example_data/splits/random.tsv"
+
+# Fingerprint parameters
+fp_radius: 2
+fp_length: 4096
+
+# Spectrum parameters
+min_mz: 0.0
+max_mz: 750.0
+bin_width: 1.0
+
+# Model architecture (reference paper defaults)
+hidden_sizes: [2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500]  # 1 input + 7 residual blocks
+dropout: 0.4981359031638645
+bidirectional: true
+gate_bidirectional: false
+resnet_bottleneck: 0.3016130573124354
+max_mass_offset: 5
+
+# Training parameters (reference paper defaults)
+batch_size: 128
+num_workers: 4
+learning_rate: 0.008657334644519428
+mass_power: 1.0
+decay_scale: 950.8921456317136
+min_lr_multiplier: 0.6971495894713359
+epochs: 100
+patience: 10
+
+# System
+device: "cuda"  # or "cpu"
+seed: 42
+output_dir: "outputs/neims_default"

@@ -1,0 +1,24 @@
+# Minimal config for random baseline evaluation
+defaults:
+  - base
+  - _self_
+
+eval_name: random
+
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  training_data_fraction: ${data.training_data_fraction}
+  # Minimal dataset config - only what's needed for ground truth retrieval
+  dataset_config:
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 1000
+    bin_width: 1.0
+
+model:
+  architecture:
+    _target_: icicle.models.baselines.random.RandomSpectrumBaseline
+    min_mz: 0
+    max_mz: 1000
+    bin_width: 1.0

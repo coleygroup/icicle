@@ -1,0 +1,39 @@
+# Single-objective configuration
+defaults:
+  - single_objective
+
+# Options for algorithms: cf. https://optuna.readthedocs.io/en/stable/reference/samplers/index.html
+# Common settings
+storage: null # Set to sqlite:///path/to/optuna.db for resumable sweeps (overridden by run_hyperopt.sh for SLURM jobs)
+n_trials: 40
+n_jobs: 1
+
+# set to 10 epochs
+# set to 10% of training data
+# all other things are set
+
+# Parameter search space
+params:
+  # Core architecture
+  model.hidden_size: choice(64, 128, 256, 512)
+  model.dropout: interval(0.0, 0.5)
+  model.architecture.pool_op: categorical("avg", "max", "sum")
+  model.architecture.inject_early: categorical(true, false)
+
+  # Training parameters
+  model.learning_rate: tag(log, interval(1e-5, 1e-1)) # log uniform
+  model.weight_decay: tag(log, interval(1e-7, 1e-2)) # log uniform
+  model.architecture.lr_decay_rate: interval(0.7, 1.0) # uniform continuous
+  data_module.batch_size: categorical(64, 128, 256)
+
+  # GNN encoder
+  model.architecture.gnn_message_passing_steps: categorical(2, 3, 4)
+  model.architecture.intra_graph_attention_layers: categorical(0, 1)
+  model.architecture.inter_fragment_attention_layers: categorical(1, 2, 3)
+
+  # Prediction head
+  model.architecture.fragment_feature_mlp_layers: categorical(1, 2, 3)
+
+  # Loss function
+  # model.architecture.loss_fn: categorical("cosine_similarity", "weighted_cosine_nist_gc", "mse", "entropy", "jensen_shannon")
+

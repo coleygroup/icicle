@@ -1,0 +1,93 @@
+# Base configuration for model evaluation
+# This file contains common settings shared across all evaluation configs
+# Individual eval configs should inherit from this using Hydra's defaults mechanism
+
+# @package _global_
+
+# Short identifier for this eval config (e.g. "random", "icicle_fe").
+# Used in output directory names and WandB run names.
+# Override in each concrete eval config.
+eval_name: null
+
+# Fraction of dataset to evaluate (1.0 = all spectra)
+fraction_of_spectra_to_compute: 1.0
+
+# Predict-only mode: save predictions.hdf5 without running any evaluation.
+# Used for datasets without spectra.hdf5. Evaluate afterwards with
+# eval_from_predictions.py using --ground-truth <mgf_or_hdf5>.
+predict_only: false
+
+# Checkpoint and resume configuration
+enable_checkpointing: true  # Enable checkpoint/resume for preemptable nodes
+checkpoint_frequency: 500   # Save checkpoint every N items
+
+# Similarity metrics computation configuration
+similarity:
+  enable: false
+  batch_size: 64
+  num_workers: 4
+  # List all similarity metrics you want to compute
+  metrics_to_compute:
+    - "cosine_similarity"
+    - "entropy_similarity"
+    - "entropy_distance"
+    - "spectral_contrast_angle"
+    - "mean_squared_error"
+    - "weighted_cosine"
+    - "composite_similarity"
+
+  # Define the weighting schemes for weighted_cosine and composite_similarity
+  weighted_cosine_schemes:
+    - "nist_gc"
+  composite_similarity_schemes:
+    - "nist_gc"
+
+# Retrieval with formula configuration
+retrieval_with_formula:
+  enable: false
+  k_max: 50
+  batch_size: 64  # molecules per GPU forward pass during candidate precomputation
+  # Path to prebuilt PubChem candidate pickle (same pool used by baselines).
+  # Produced by retrieval_create_retrieval_lists.py with --max-k 50.
+  # If null, falls back to within-dataset formula matching (much smaller pool).
+  candidates_pickle: null
+  # List of metrics to use for ranking candidates (all will be computed and reported)
+  ranking_metrics:
+    - "cosine_similarity"
+    - "entropy_similarity"
+    - "entropy_distance"
+    - "spectral_contrast_angle"
+    - "mean_squared_error"
+    - "weighted_cosine"
+    - "composite_similarity"
+
+  # Define the weighting schemes for weighted_cosine and composite_similarity
+  weighted_cosine_schemes:
+    - "nist_gc"
+  composite_similarity_schemes:
+    - "nist_gc"
+
+# Retrieval with retention index configuration
+retrieval_with_ri:
+  enable: false
+  batch_size: 64  # molecules per GPU forward pass during candidate precomputation
+  candidates_dir: ${data.data_dir}/retrieval_scaffold/
+  candidates_prefix: pubchem_ri_candidates
+  ri_source: from_exp  # 'from_exp' uses experimental RI, 'from_pred' uses predicted RI
+  ri_types:
+    - StdNP
+    - SemiStdNP
+    - StdPolar
+  k_max: 50
+  ranking_metrics:
+    - "cosine_similarity"
+    - "entropy_similarity"
+    - "entropy_distance"
+    - "spectral_contrast_angle"
+    - "mean_squared_error"
+    - "weighted_cosine"
+    - "composite_similarity"
+  weighted_cosine_schemes:
+    - "nist_gc"
+  composite_similarity_schemes:
+    - "nist_gc"

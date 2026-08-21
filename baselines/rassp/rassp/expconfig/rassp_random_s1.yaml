@@ -1,0 +1,130 @@
+cluster_config:
+  data_dir: /home/magled/icicle-dev/baselines/rassp
+  checkpoint_dir: /home/magled/icicle-dev/baselines/rassp/rassp/checkpoints
+  using_cluster: false
+exp_data:
+  data:
+  - db_filename: nist-random_train.parquet
+    phase: train
+    filter_max_mass: 511
+    filter_max_unique_formulae: 4096
+    filter_max_n: 48
+  - db_filename: nist-random_val.parquet
+    phase: test
+    filter_max_mass: 511
+    filter_max_unique_formulae: 4096
+    filter_max_n: 48
+  cv_split:
+    how: morgan_fingerprint_mod
+    mod: 10
+    test:
+    - 0
+    - 1
+tblogdir: tblogs.best
+checkpoint_every_n_epochs: 50
+DATALOADER_NUM_WORKERS: 4
+validate_every: 10
+pred_config:
+  foo: bar
+validate_config:
+  kl_validate:
+  - field: null
+  dotprod_validate:
+    exp_pred: false
+    exp_true: false
+  metadata:
+  - field: null
+net_name: formulaenets.GraphVertSpect
+bin_config:
+  first_bin_center: 1.0
+  bin_width: 1.0
+  bin_number: 512
+automatic_mixed_precision: false
+epoch_size: 8192
+tgt_max_n: 48
+seed: 1
+featurize_config:
+  MAX_N: 48
+  feat_vert_args:
+    feat_atomicno: true
+    total_h_oh: true
+    partial_charge: false
+    mmff_atom_types_onehot: false
+  adj_args:
+    add_identity: false
+    norm_adj: false
+    edge_bin: false
+  mol_args:
+    atom_type_counts: true
+  spect_input_sparse: true
+  element_oh:
+  - 1
+  - 6
+  - 7
+  - 8
+  - 9
+  - 15
+  - 16
+  - 17
+  vert_subset_samples_n: 12288
+  subset_gen_config:
+    name: BandR
+    num_breaks: 3
+  explicit_formulae_config:
+    enumerator_type: multipeak
+    formula_possible_atomicno:
+    - 1
+    - 6
+    - 7
+    - 8
+    - 9
+    - 15
+    - 16
+    - 17
+    featurize_mode: numerical
+    use_highres: true
+    num_peaks_per_formula: 12
+    max_formulae: 4096
+    clip_mass: 511
+loss_params:
+  loss_name: losses.WeightedMSELoss
+  func: l2
+  mass_scale: 0.0
+  intensity_pow: 0.5
+max_epochs: 100
+batch_size: 8
+accumulate_steps: 2
+opt_params:
+  lr: 0.00012170370924261076
+  optimizer: adam
+  weight_decay: 1.0451370879352564e-06
+net_params:
+  agg_func: sum
+  gml_class: GraphMatLayersNormAfterRes
+  gml_config:
+    layer_class: GraphMatLayerFast3
+    layer_config:
+      dropout: 0.12125679254035532
+      nonlin: relu
+  inner_norm: layer
+  input_norm: batch
+  int_d: 768
+  layer_n: 8
+  resnet: true
+  spect_out_class: MolAttentionGRU
+  spect_out_config:
+    embedding_key_size: 8
+    gru_layer_n: 2
+    internal_d: 256
+    linear_layer_n: 6
+    formula_oh_sizes:
+    - 50
+    - 46
+    - 30
+    - 30
+    - 30
+    - 30
+    - 30
+    - 30
+    formula_oh_accum: true
+  g_feature_n: -1

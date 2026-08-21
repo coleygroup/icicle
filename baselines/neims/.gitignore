@@ -1,0 +1,55 @@
+# NEIMS baseline .gitignore
+
+# Output directories
+outputs/
+hyperopt_results/
+checkpoints/
+logs/
+results/
+wandb/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# TensorBoard
+events.out.tfevents.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (if stored locally)
+*.hdf5
+*.h5
+*.tsv
+data/

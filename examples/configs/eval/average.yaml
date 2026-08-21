@@ -1,0 +1,28 @@
+# Config for average spectrum baseline evaluation
+# Computes average of training spectra and predicts that for all molecules
+defaults:
+  - base
+  - _self_
+
+eval_name: average
+
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  training_data_fraction: ${data.training_data_fraction}
+  dataset_config:
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+
+model:
+  architecture:
+    _target_: icicle.models.baselines.average.AverageSpectrumBaseline
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+    # Paths to compute average from training data
+    spectra_path: ${data.spectra_path}
+    labels_path: ${data.labels_path}
+    splits_path: ${data.splits_path}

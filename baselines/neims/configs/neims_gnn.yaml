@@ -1,0 +1,53 @@
+# NEIMS-GNN: Zhu et al. 2020 (arXiv:2010.04661) adapted for NIST 270k GC-MS.
+# Paper best (6k LC-MS): 10-layer GAT. At 270k we use 3 layers to avoid
+# over-smoothing — verified empirically (all predictions collapse with 10 layers).
+# Other paper choices kept: GAT, GLU, global max pool, bond features.
+
+model_type: neims_gnn
+
+# Data paths
+metadata_path: "../../data/NIST2023_GCMS_main/metadata.tsv"
+spectra_path: "../../data/NIST2023_GCMS_main/spectra.hdf5"
+splits_path: "../../data/NIST2023_GCMS_main/splits/scaffold_no_xeno_aas_deduplicated.tsv"
+
+# Spectrum
+min_mz: 0.0
+max_mz: 750.0
+bin_width: 1.0
+
+# GNN Encoder
+gnn_type: GAT
+gnn_hidden_size: 128
+gnn_num_layers: 5
+gnn_num_heads: 8
+gnn_dropout: 0.2953136784814281
+pool_type: max
+use_edge_features: false
+
+# Prediction Head (paper best: GLU + no bidirectional — bidir spreads density)
+use_glu: true
+bidirectional: false
+gate_bidirectional: false
+
+ffnn_hidden_sizes: []
+ffnn_dropout: 0.25
+resnet_bottleneck: 0.5
+
+max_mass_offset: 5
+
+# Training
+batch_size: 64
+num_workers: 4
+learning_rate: 0.0017944146537742767
+weight_decay: 1.2868887326296711e-05
+mass_power: 1.0
+loss_type: generalized_mse
+decay_scale: 2481.715045680694
+min_lr_multiplier: 0.01
+epochs: 100
+patience: 15
+
+# System
+device: "cuda"
+seed: 42
+output_dir: "outputs/neims_gnn_scaffold_v4_pool_bidir"

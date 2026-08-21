@@ -1,0 +1,61 @@
+defaults:
+  - _self_
+
+experiment_name: "fragment_generator"
+
+# Data module configuration
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  dataset_type: "molecule_to_dag"
+  batch_size: 256  # Increased from 128 for better GPU utilization with mixed precision
+  num_workers: 6  # Increased from 4 for better data loading throughput
+  prefetch_factor: 4  # Increased from 2 for better GPU utilization
+  training_data_fraction: ${data.training_data_fraction}
+  
+  # Dataset-specific configuration
+  dataset_config:
+    magma_trees_path: ${data.magma_trees_path}
+    magma_tsv_path: ${data.magma_tsv_path}
+    dag_dir: ${data.dag_dir}
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+    tree_processor_config:
+      pe_embed_k: 8
+      add_hs: true
+      embed_elem_group: false
+      max_broken_bonds: 6
+      max_tree_depth: 3
+      min_mz: ${model.data_module.dataset_config.min_mz}
+      max_mz: ${model.data_module.dataset_config.max_mz}
+      bin_width: ${model.data_module.dataset_config.bin_width}
+      num_h_shifts: 6
+      hetero_weights_cc: 2
+      hetero_weights_other: 1
+
+# Model architecture configuration - this gets instantiated by Hydra
+architecture:
+  _target_: icicle.models.fragmentation_model.FragmentGenerator
+  
+  # Architecture
+  hidden_size: 256
+  layers: 2
+  set_transformer_layers: 1
+  pool_op: "avg"
+  max_broken: 6
+  inject_early: true
+  
+  # Features
+  encode_formulae: true
+  add_hs: true
+  
+  # Training
+  learning_rate: 7e-4
+  weight_decay: 1e-5
+  dropout: 0.1
+  favor_positive_samples_factor: 2.0
+
+  min_mz: ${model.data_module.dataset_config.min_mz}
+  max_mz: ${model.data_module.dataset_config.max_mz}
+  bin_width: ${model.data_module.dataset_config.bin_width}

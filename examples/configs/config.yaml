@@ -1,0 +1,39 @@
+# Defaults
+defaults:
+  - _self_
+  - model: null
+  - data: NIST
+  - trainer: default
+  - eval: null
+  - hyperparameter_sweep: null
+  - override hydra/sweeper: optuna
+
+# System settings
+system:
+  accelerator: "gpu" # cpu, gpu
+  devices: [0] # index of GPU
+  seed: 42 # seed for model initialization
+  seed_datasplit: 42 # seed for data split
+  debug: true
+  ckpt_path: null # set to resume from a specific checkpoint, or leave null for auto-detect
+  compile_mode: "reduce-overhead" # torch.compile mode: "reduce-overhead", "default", or "max-autotune"
+
+# Wandb settings
+wandb:
+  project: ${oc.env:WANDB_PROJECT}-${oc.select:model.experiment_name,'eval'}
+  entity: ${oc.env:WANDB_ENTITY}
+  mode: online
+
+# Dir handling
+# Training runs  -> results/single_run/YYYY-MM-DD/HH-MM-SS/
+# Eval runs      -> results/eval/<SLURM_JOB_ID>_<description>/
+#                  (always set explicitly via hydra.run.dir=... on the CLI;
+#                   see examples/scripts/evaluation/ for the wrapper scripts)
+hydra:
+  job:
+    chdir: true
+  run:
+    dir: results/single_run/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: results/multi_run/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

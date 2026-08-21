@@ -1,0 +1,78 @@
+defaults:
+  - _self_
+
+experiment_name: "intensity_predictor"
+
+# Data module configuration
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  dataset_type: "dag_to_spectrum"
+  batch_size: 256  # Increased from 128 for better GPU utilization with mixed precision
+  num_workers: 6  # Increased from 4 for better data loading throughput
+  prefetch_factor: 4  # Increased from 2 for better GPU utilization
+  training_data_fraction: ${data.training_data_fraction}
+  
+  # Dataset-specific configuration
+  dataset_config:
+    magma_trees_path: ${data.magma_trees_path}
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+    spec_transform: "binner"
+    tree_processor_config:
+      pe_embed_k: 8
+      add_hs: true
+      embed_elem_group: false
+      max_broken_bonds: 6
+      max_tree_depth: 3
+      min_mz: ${model.data_module.dataset_config.min_mz}
+      max_mz: ${model.data_module.dataset_config.max_mz}
+      bin_width: ${model.data_module.dataset_config.bin_width}
+      num_h_shifts: ${model.architecture.h_shift_range}
+      hetero_weights_cc: 2
+      hetero_weights_other: 1
+
+# Model architecture configuration
+architecture:
+  _target_: icicle.models.intensity_model.IntensityPredictor
+  
+  # Core architecture
+  hidden_size: 256
+
+  
+  # GNN layers
+  gnn_message_passing_steps: 2 # for encoding the graphs
+  intra_graph_attention_layers: 1 # for encoding the graphs
+  inter_fragment_attention_layers: 2 # for inter-fragment attention
+  fragment_feature_mlp_layers: 3
+  
+  # Training parameters
+  learning_rate: 1e-3
+  lr_decay_rate: 0.95
+  weight_decay: 1e-5
+  dropout: 0.1
+  warmup: 1000
+  
+  # Architecture options
+  pool_op: "avg"
+  pe_embed_k: ${model.data_module.dataset_config.tree_processor_config.pe_embed_k}
+  max_broken: 6
+  h_shift_range: 6
+  inject_early: true
+  
+  # Features
+  encode_formulae: true
+  add_hs: true
+  embed_elem_group: false
+  
+  # Loss function
+  loss_fn: "cosine_similarity"
+  
+  # Isotopes (optional)
+  add_isotopes: true
+  max_isotopes: 3
+
+  # Other parameters
+  lower_mz_cutoff: 0.0

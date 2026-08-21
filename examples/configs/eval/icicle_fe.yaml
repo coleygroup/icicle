@@ -1,0 +1,53 @@
+defaults:
+  - base
+  - _self_
+
+eval_name: icicle_fe
+
+# Use the prebuilt PubChem candidate pool (same as baselines, 50 candidates/query).
+# Override on CLI with eval.retrieval_with_formula.candidates_pickle=<path>.
+retrieval_with_formula:
+  candidates_pickle: ${data.data_dir}/retrieval/cands_pickled_scaffold_50.pkl
+
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  dataset_type: "dag_to_spectrum"
+  batch_size: 64
+  num_workers: 12
+  pin_memory: true
+  training_data_fraction: ${data.training_data_fraction}
+  
+  # Dataset-specific configuration
+  dataset_config:
+    magma_trees_path: ${data.magma_trees_path}
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+    spec_transform: "binner"
+    tree_processor_config:
+      pe_embed_k: 8
+      add_hs: true
+      embed_elem_group: false
+      max_broken_bonds: 6
+      max_tree_depth: 3
+      min_mz: 0
+      max_mz: 750
+      bin_width: 1.0
+      num_h_shifts: 6
+      hetero_weights_cc: 2
+      hetero_weights_other: 1
+
+# Model architecture configuration
+model:
+  architecture:
+    _target_: icicle.models.eims_predictor.EIMSPredictorFromFullEnumeration
+    # intensity_predictor_checkpoint: /home/magled/icicle-dev/tmp/intensity_predictor_best-model-val_loss=0.1185.ckpt # iso
+    # intensity_predictor_checkpoint: /home/magled/icicle-dev/results/single_run/2025-07-19/17-15-26/checkpoints/best-model-val_loss=0.1145.ckpt #  no iso
+    intensity_predictor_checkpoint: /home/magled/icicle-dev/checkpoints/entropy_scaffold_s1/checkpoints/best-model-val_loss=0.1793-epoch=39.ckpt
+    # intensity_predictor_checkpoint: /home/magled/icicle-dev/results/260304_scaffold_best/best-model-val_loss=0.2473-epoch=61.ckpt # scaffold
+    max_nodes: 100
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0

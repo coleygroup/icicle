@@ -1,0 +1,15 @@
+split_name: random_no_xeno_aas_deduplicated # random, scaffold, instrument, molecular_weight_sequential, mces, butina
+
+# Data splitting settings
+random_seed: ${system.seed_datasplit}
+train_val_test_split: [0.8, 0.1, 0.1]  # train, val, test
+training_data_fraction: 1.0
+
+# Paths
+data_dir: /home/magled/icicle-dev/data/NIST2023_GCMS_main
+dag_dir: ${data.data_dir}/processed_1_h_shifts_50_peaks_3_tree_depth_6_broken_bonds_False_isotope_patterns
+magma_trees_path: ${data.dag_dir}/magma_tree.hdf5
+magma_tsv_path: ${data.dag_dir}/magma_tree.tsv
+labels_path: ${data.data_dir}/metadata.tsv
+spectra_path: ${data.data_dir}/spectra.hdf5
+splits_path: ${data.data_dir}/splits/${data.split_name}.tsv

@@ -1,0 +1,13 @@
+build/
+checkpoints/
+*.so
+models/
+__pycache__/
+plots/
+*.egg-info/
+tblogs.formulae/
+*.png
+*.txt
+*.parquet
+tblogs*
+*.db

@@ -1,0 +1,128 @@
+# PubChem Global Retrieval Evaluation Config
+# Run with: uv run examples/scripts/evaluation/pubchem_global_retrieval.py
+
+# PubChem prediction HDF5 files (output of batch_infer + add_inchikeys_to_hdf5.py)
+hdf5_files:
+  - /home/magled/icicle-dev/results/inference/pubchem_predictions_rerun_260710.hdf5
+
+# PubChem reference DB with AIRI-predicted RI (parquet, sorted by InChIKey)
+pubchem_ri_parquet: data/PubChem/PubChem_filtered_with_ri_new_random_inchikey_cache.parquet
+
+# NIST test dataset
+nist_labels_path: data/NIST2023_GCMS_main/metadata.tsv
+nist_spectra_path: data/NIST2023_GCMS_main/spectra.hdf5
+# Split membership (train/val/test) — defines the FULL test set independent
+# of RI availability. Must match the split used for nist_ri_path's queries.
+nist_split_path: data/NIST2023_GCMS_main/splits/random_no_xeno_aas_deduplicated_no_qcxms2.tsv
+nist_ri_path: data/NIST2023_GCMS_main/retention_index_airi/ri_dataset_random_split_no_xeno_aas.tsv
+
+# Which split partition to evaluate
+nist_split: test
+
+# RI column types to evaluate separately
+ri_types:
+  - SemiStdNP
+
+# Candidate set sizes for RI-window ablation.
+# "all" = full 95M database (true global rank).
+# Integer N = take N closest molecules by RI as candidate set.
+top_n_levels:
+  - 1000
+  - 100000
+  - 1000000
+  - 10000000
+  - "all"
+
+
+# Similarity metrics to compute (cosine, entropy, weighted_cosine)
+ranking_metrics:
+  - cosine
+  # - entropy
+  # - weighted_cosine
+
+# Spectrum binning parameters (must match batch_infer settings)
+min_mz: 0
+max_mz: 750
+bin_width: 1.0
+
+# How many PubChem rows to push to GPU per iteration (cosine + weighted_cosine)
+scan_chunk_size: 500000
+
+# Entropy similarity requires O(cands × queries × n_bins) memory.
+# 3 intermediates (p_exp, q_exp, m): chunk * query_batch * 750 * 4B * 3
+# entropy_cand_chunk=2000, entropy_query_batch=16 → ~0.27 GB per call.
+entropy_cand_chunk: 2000
+entropy_query_batch: 16
+
+# Output
+output_dir: results/pubchem_retrieval_eval
+
+# Directory for true_pred_spectra_cache.npz — share across runs to avoid re-scanning.
+# Defaults to output_dir if not set.
+spectra_cache_dir: results/pubchem_retrieval_eval
+
+# Log skipped queries here (missing RI or missing PubChem prediction)
+skipped_log: results/pubchem_retrieval_eval/skipped_queries.tsv
+
+# MW window expansion (Da). Set to add MW-only and RI∪MW union tracks.
+# Requires sort_idx_mw + mw datasets in the HDF5 — build with:
+#   uv run examples/scripts/evaluation/add_sort_index_to_hdf5.py \
+#     --hdf5 <hdf5> --parquet data/PubChem/PubChem_filtered_with_ri_new_random_inchikey_cache.parquet
+mw_window_da: 80
+
+# If true, ALSO run MW-only candidate selection against the full test set
+# (no RI restriction, same query set as retrieval_global_results.json's
+# "all" scan) — independent of ri_types/the per-RI-type MW-only pass above,
+# which is restricted to whichever RI type's non-null subset it's nested
+# under. Writes retrieval_mw{da}_global_results.json and
+# retrieval_per_query_mw{da}_all.tsv.
+mw_global: false
+
+# Optional asymmetric MW window: [-mw_window_da_lo, +mw_window_da_hi] around
+# the query's highest observed peak, instead of the symmetric
+# [-mw_window_da, +mw_window_da]. Only affects the mw_global pass (set both
+# to null/unset for the default symmetric behavior).
+#
+# Motivation: a direct check on 10k real NIST molecules found the highest
+# observed peak is AT OR ABOVE the true MW in ~76% of cases (isotope peaks
+# — M+1/M+2/M+3 from natural ¹³C/³⁷Cl/etc. abundance), not routinely below
+# it as the "fragments can't exceed parent mass" intuition alone would
+# suggest. A small negative margin (covering those isotope peaks) plus a
+# wider positive margin (covering cases where the molecular ion is
+# weak/absent and the parent is heavier than any observed peak) can match
+# the full symmetric ±80Da window's coverage (~95.6%) at roughly half the
+# total width: [-10,+80] gave 95.62% coverage at width=90 vs ±80's 95.67%
+# at width=160, in that same check.
+mw_window_da_lo: null
+mw_window_da_hi: null
+
+# Heavy-atom-count window (+/- atoms). Adds the heavy-atom-only track.
+# Requires sort_idx_heavy_atom + heavy_atom_true datasets in the HDF5 -
+# build with:
+#   uv run examples/scripts/evaluation/add_true_heavy_atom_index_to_hdf5.py \
+#     --hdf5 <hdf5>
+heavy_atom_model_path: checkpoints/heavy_atom_predictor_random_split.joblib
+
+heavy_atom_window: 3
+
+# If true, also compute the RI-union-HeavyAtom track (union of RI-window
+# and heavy-atom-window candidate pools -- a query only fails if excluded
+# from BOTH filters simultaneously, NOT the same as the funnel above) for
+# each ri_type x top_n_levels[non-"all"]. Writes
+# retrieval_union_heavy_atom{window}_results.json.
+heavy_atom_ri_union: false
+
+# If true, skip the plain RI-window ladder (retrieval_ablation_{ri_type}.json
+# / retrieval_ablation_all_ri_types.json) entirely -- useful when only the
+# MW/heavy-atom funnel/union tracks below are wanted and the ladder was
+# already computed in a prior run. Every block below rebuilds its own
+# queries_ri/true_pred_mat independently, so skipping the ladder loop
+# doesn't affect anything after it.
+skip_ri_ladder: false
+
+# If true, ALSO run heavy-atom-only candidate selection against the full
+# test set (no RI restriction, same query set as
+# retrieval_global_results.json's "all" scan). Writes
+# retrieval_heavy_atom{window}_global_results.json and
+# retrieval_per_query_heavy_atom{window}_all.tsv.
+heavy_atom_global: false
