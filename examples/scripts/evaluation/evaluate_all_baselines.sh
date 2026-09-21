@@ -70,6 +70,12 @@ EVAL_MATRIX=(
     "average|NIST|${NIST_DATA_DIR}|scaffold_no_xeno_aas_deduplicated|similarity|average_nist_scaffold_sim"
     "average|NIST|${NIST_DATA_DIR}|random_no_xeno_aas_deduplicated|similarity|average_nist_random_sim"
 
+    # ── nearest_neighbor ────────────────────────────────────────────────────
+    "nearest_neighbor|NIST|${NIST_DATA_DIR}|scaffold_no_xeno_aas_deduplicated|similarity|nn_nist_scaffold_sim"
+    "nearest_neighbor|NIST|${NIST_DATA_DIR}|random_no_xeno_aas_deduplicated|similarity|nn_nist_random_sim"
+    "nearest_neighbor|NIST|${NIST_DATA_DIR}|random_no_xeno_aas_deduplicated_no_qcxms2_rassp|similarity|nn_random_rassp_subset_sim"
+    "nearest_neighbor|NIST|${NIST_DATA_DIR}|scaffold_no_xeno_aas_deduplicated_rassp|similarity|nn_scaffold_rassp_subset_sim"
+
     # ── full_enumeration_barcode ─────────────────────────────────────────────
     "full_enumeration_barcode|NIST|${NIST_DATA_DIR}|scaffold_no_xeno_aas_deduplicated|similarity|febc_nist_scaffold_sim"
     "full_enumeration_barcode|NIST|${NIST_DATA_DIR}|random_no_xeno_aas_deduplicated|similarity|febc_nist_random_sim"

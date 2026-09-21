@@ -1,0 +1,27 @@
+# Config for nearest-neighbor baseline evaluation
+# Predicts the training spectrum of the most Tanimoto-similar training molecule
+defaults:
+  - base
+  - _self_
+
+eval_name: nearest_neighbor
+
+data_module:
+  labels_path: ${data.labels_path}
+  splits_path: ${data.splits_path}
+  training_data_fraction: ${data.training_data_fraction}
+  dataset_config:
+    spectra_path: ${data.spectra_path}
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+
+model:
+  architecture:
+    _target_: icicle.models.baselines.nearest_neighbor.NearestNeighborBaseline
+    min_mz: 0
+    max_mz: 750
+    bin_width: 1.0
+    spectra_path: ${data.spectra_path}
+    labels_path: ${data.labels_path}
+    splits_path: ${data.splits_path}
