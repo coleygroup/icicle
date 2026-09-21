@@ -1,3 +1,4 @@
 from .average import AverageSpectrumBaseline
 from .full_enumeration_bar_code import FullEnumerationBarCode
+from .nearest_neighbor import NearestNeighborBaseline
 from .random import RandomSpectrumBaseline
