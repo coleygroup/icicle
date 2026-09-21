@@ -245,9 +245,9 @@ uv run examples/scripts/evaluation/add_sort_index_to_hdf5.py \
 
 ### Training Models <a name="training"></a>
 
-ICICLE includes two main models:
+ICICLE includes two main parts:
+- **Fragment Generator**: Infers which fragments will be present
 - **Intensity Predictor**: Predicts peak intensities given a fragment tree
-- **Fragment Generator**: Predicts which fragments will be present
 
 #### Basic Training
 
@@ -709,12 +709,12 @@ Output dirs follow the `<model>_scaffold_s<seed>` naming convention
 ## Citation <a name="citation"></a>
 
 ```
-@article{lederbauer2026fragment,
-  title   = {Fragment-Grounded Neural Simulation of Electron Ionization Mass Spectra at Library Scale},
-  author  = {Magdalena Lederbauer and Runzhong Wang and Connor Coley},
-  year    = {2026},
-  journal = {ChemRxiv preprint},
-  doi     = {10.26434/chemrxiv.15008135},
-  url     = {https://chemrxiv.org/doi/full/10.26434/chemrxiv.15008135/v1}
+@misc{lederbauer2026structure,
+  title  = {Fragment-Grounded Neural Simulation of Electron Ionization Mass Spectra at Library Scale},
+  author = {Lederbauer, Magdalena and Wang, Runzhong and Coley, Connor},
+  year   = {2026},
+  note   = {ChemRxiv preprint},
+  doi    = {10.26434/chemrxiv.15008135.v1},
+  url    = {https://doi.org/10.26434/chemrxiv.15008135.v1}
 }
 ```
