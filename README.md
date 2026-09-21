@@ -1,5 +1,8 @@
 # ICICLE
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22854374.svg)](https://doi.org/10.5281/zenodo.22854374)
+[![Preprint](https://img.shields.io/badge/preprint-ChemRxiv-blue)](https://chemrxiv.org/doi/full/10.26434/chemrxiv.15008135/v1)
+
 Implementation of the work presented in "Structure elucidation of unknown molecules with physics-constrained neural simulation of electron ionization mass spectrometry". This codebase contains scripts to preprocess data, models, baselines, evaluation pipelines, visualization functions, and example data to replicate results from the paper.
 
 ![](assets/asset.jpeg)
@@ -706,10 +709,12 @@ Output dirs follow the `<model>_scaffold_s<seed>` naming convention
 ## Citation <a name="citation"></a>
 
 ```
-@article{lederbauer2025structure,
-  title   = {Structure elucidation of unknown molecules with physics-constrained neural simulation of electron ionization mass spectrometry},
+@article{lederbauer2026fragment,
+  title   = {Fragment-Grounded Neural Simulation of Electron Ionization Mass Spectra at Library Scale},
   author  = {Magdalena Lederbauer and Runzhong Wang and Connor Coley},
   year    = {2026},
-  journal = {arXiv preprint arXiv: xxx}
+  journal = {ChemRxiv preprint},
+  doi     = {10.26434/chemrxiv.15008135},
+  url     = {https://chemrxiv.org/doi/full/10.26434/chemrxiv.15008135/v1}
 }
 ```
